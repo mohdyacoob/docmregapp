@@ -73,5 +73,5 @@ jobs:
         with:
           app-name: 'frontenddocm'
           slot-name: 'Production'
-          package: .
+          package: ./build
           
