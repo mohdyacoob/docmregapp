@@ -1,0 +1,68 @@
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
+
+const MemberVerificationApp = () => {
+  const [memberNo, setMemberNo] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const handleVerify = async () => {
+    setLoading(true);
+    setStatus(null);
+    
+    try {
+      const response = await fetch("/api/verify-member", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ memberNo, phone }),
+      });
+      
+      const result = await response.json();
+      setStatus(result);
+    } catch (error) {
+      setStatus({ error: "Failed to verify member. Please try again." });
+    }
+    
+    setLoading(false);
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md p-6 shadow-xl rounded-2xl bg-white">
+        <CardContent>
+          <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">Member Verification</h2>
+          <div className="space-y-4">
+            <Input 
+              placeholder="Member No" 
+              value={memberNo} 
+              onChange={(e) => setMemberNo(e.target.value)}
+              className="w-full p-3 border rounded-lg"
+            />
+            <Input 
+              placeholder="Phone Number" 
+              value={phone} 
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full p-3 border rounded-lg"
+            />
+            <Button onClick={handleVerify} disabled={loading} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+              {loading ? "Verifying..." : "Verify"}
+            </Button>
+          </div>
+          {status && (
+            <Alert className={`mt-4 p-4 rounded-lg ${status.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+              {status.error || `Status: ${status.paymentStatus}, Shirt Size: ${status.shirtSize}, Entrance: ${status.entranceAllowed ? "Allowed" : "Denied"}`}
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default MemberVerificationApp;
